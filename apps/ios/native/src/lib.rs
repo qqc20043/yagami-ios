@@ -7,7 +7,9 @@
 //! [`yagami_string_free`] 释放；传入的 `*const c_char` 一律借用，本层不持有。
 //! 所有函数对空指针与无效句柄都返回安全默认值，不 panic 跨过 FFI 边界。
 
-mod engine;
+// engine 必须 pub：C ABI 函数签名里的 *mut IosEngine 要求类型可达，
+// 否则 private_interfaces 报错。见 engine/mod.rs 的说明。
+pub mod engine;
 mod snapshot;
 
 use std::ffi::{CStr, CString, c_char};

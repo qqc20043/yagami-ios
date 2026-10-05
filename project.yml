@@ -25,8 +25,9 @@ settings:
     SWIFT_OBJC_BRIDGING_HEADER: apps/ios/keyboard/Yagami-Bridging-Header.h
     # Rust 静态库与头文件的搜索路径。CI 会先把产物放到这里。
     HEADER_SEARCH_PATHS: $(SRCROOT)/apps/ios/native/include
+    # 本工程是 Cargo workspace，cargo 产物落在仓库根的 target/。
     LIBRARY_SEARCH_PATHS:
-      - $(SRCROOT)/apps/ios/native/target/universal/release
+      - $(SRCROOT)/target/universal/release
     OTHER_LDFLAGS:
       - -lyagami_ios_native
     # 静态库是 Rust 编的，不需要位码。

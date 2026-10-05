@@ -74,15 +74,17 @@ jobs:
           # 模拟器（Apple Silicon 与 Intel 各一份，合成 fat 归档）
           cargo build -p yagami-ios-native --release --target aarch64-apple-ios-sim
           cargo build -p yagami-ios-native --release --target x86_64-apple-ios
-          mkdir -p apps/ios/native/target/universal/release
+          # 本工程是 Cargo workspace：产物一律落在仓库根的 target/，
+          # 不在 apps/ios/native/target/（踩过一次：lipo 找不到输入文件）。
+          mkdir -p target/universal/release
           lipo -create \
-            apps/ios/native/target/aarch64-apple-ios/release/libyagami_ios_native.a \
-            -output apps/ios/native/target/universal/release/libyagami_ios_native.a
+            target/aarch64-apple-ios/release/libyagami_ios_native.a \
+            -output target/universal/release/libyagami_ios_native.a
           lipo -create \
-            apps/ios/native/target/aarch64-apple-ios-sim/release/libyagami_ios_native.a \
-            apps/ios/native/target/x86_64-apple-ios/release/libyagami_ios_native.a \
-            -output apps/ios/native/target/universal/release/libyagami_ios_native_sim.a
-          lipo -info apps/ios/native/target/universal/release/*.a
+            target/aarch64-apple-ios-sim/release/libyagami_ios_native.a \
+            target/x86_64-apple-ios/release/libyagami_ios_native.a \
+            -output target/universal/release/libyagami_ios_native_sim.a
+          lipo -info target/universal/release/*.a
 
       - name: 生成 Xcode 工程
         run: |

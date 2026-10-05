@@ -1,6 +1,5 @@
-# Rust 构建产物
+# Rust 构建产物（workspace 根：cargo 把所有成员的产物放这里）
 /target/
-apps/ios/native/target/
 
 # XcodeGen 生成的工程文件：project.yml 是唯一真源，生成物不入库。
 # 理由见 README 的「本地构建」一节。

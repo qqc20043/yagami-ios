@@ -26,9 +26,10 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  # 上游 Core 的提交，与 Cargo.toml 的 rev 保持一致。
+  # 上游 Core 的提交，与 Cargo.toml 的 rev 同一处来源。这里必须写完整 40 位：
+  # git fetch 按对象名抓取只认完整 SHA，短 SHA 会报 couldn't find remote ref。
   CORE_REPO: https://github.com/Utyoin-OG/yagami-Qingjian-android
-  CORE_REV: a4e72eb
+  CORE_REV: a4e72eb07567d78901373b1fe2af28d69c064f58
   RUST_VERSION: "1.96.0"
 
 jobs:

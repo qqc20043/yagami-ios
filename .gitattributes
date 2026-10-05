@@ -1,0 +1,11 @@
+# 仓库内一律 LF：CI（macOS）与 Windows 检出行为一致，
+# 避免行尾差异触发 rustfmt --check 或 bash 脚本（preflight.sh）失败。
+* text=auto eol=lf
+
+# Windows 专属脚本保持 CRLF。
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制文件不做任何转换。
+*.png binary
+*.ipa binary

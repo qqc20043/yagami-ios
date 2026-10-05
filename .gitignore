@@ -1,0 +1,33 @@
+# Rust 构建产物
+/target/
+apps/ios/native/target/
+
+# XcodeGen 生成的工程文件：project.yml 是唯一真源，生成物不入库。
+# 理由见 README 的「本地构建」一节。
+*.xcodeproj/
+*.xcworkspace/
+
+# Xcode 本地产物
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# 签名材料：绝不入库
+signing/
+*.p12
+*.mobileprovision
+*.jks
+*.keystore
+
+# 词库：由 CI 从上游仓库取，不入本库（体积大且有独立许可）
+/assets/lexicon/
+/assets/glossary/
+
+# macOS
+.DS_Store
+
+# 编辑器
+.idea/
+.vscode/
+*.swp

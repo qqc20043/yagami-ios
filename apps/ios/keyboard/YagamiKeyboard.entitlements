@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+键盘扩展的 entitlements。
+
+App Group 必须与主 App 的完全一致，否则两个进程看到的不是同一个容器，
+键盘会报「请先打开 Yagami 完成初始化」——即使主 App 明明装好了数据。
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.io.github.utyoinog.yagamiime</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,22 @@
+[package]
+name = "yagami-ios-native"
+description = "Yagami iOS 输入法的 C ABI 平台壳"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+# 静态库：iOS 不允许把动态库打进 App Bundle 再 dlopen。
+# 主 App 与键盘扩展各链一份静态归档；符号都带 yagami_ 前缀，不会冲突。
+crate-type = ["staticlib"]
+
+[lints]
+workspace = true
+
+[dependencies]
+qingjian-core.workspace = true
+qingjian-dictionary.workspace = true
+qingjian-translate.workspace = true
+serde.workspace = true
+serde_json.workspace = true

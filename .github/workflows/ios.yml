@@ -1,0 +1,160 @@
+# Yagami iOS 的云端构建。
+#
+# 这个工作流的存在理由：构建 iOS 应用必须有 Xcode，而 Xcode 只在 macOS 上跑。
+# GitHub 给公开仓库免费提供 macOS runner，于是「没有 Mac」不再挡路——
+# 推代码上来，这里编出未签名的 .ipa，你在 Windows 上用 Sideloadly 装到 iPhone。
+#
+# 未签名包不能直接装真机。要装真机有两条路：
+#   1. 免费 Apple ID + Sideloadly：本地重签，7 天过期。
+#   2. 付费开发者账号：把证书导出成 base64 存进 Secrets，本工作流可签名并出真机包。
+# 第 2 条的 Secret 名字见下方 sign 步骤的注释。
+
+name: ios
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # 上游 Core 的提交，与 Cargo.toml 的 rev 保持一致。
+  CORE_REPO: https://github.com/Utyoin-OG/yagami-Qingjian-android
+  CORE_REV: a4e72eb
+  RUST_VERSION: "1.96.0"
+
+jobs:
+  build:
+    # macOS runner 自带 Xcode 与 iOS SDK，这是本工作流唯一可行的运行环境。
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 取出上游 Core 与词库数据
+        # 词库与 Core 都在上游仓库里。这里浅克隆一份，只为拿 assets/ 下的
+        # 数据文件；Rust 依赖由 Cargo 按 Cargo.toml 的 git rev 自行拉取。
+        run: |
+          git clone --depth 1 "$CORE_REPO" upstream
+          cd upstream && git fetch --depth 1 origin "$CORE_REV" && git checkout "$CORE_REV"
+          mkdir -p assets/lexicon assets/glossary
+          cp upstream/assets/lexicon/dict.tsv assets/lexicon/
+          cp upstream/assets/glossary/glossary-en.tsv assets/glossary/
+          ls -la assets/lexicon assets/glossary
+
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: rustfmt, clippy
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: 检查 Rust
+        run: |
+          cargo fmt --all --check
+          cargo clippy -p yagami-ios-native --all-targets -- -D warnings
+
+      - name: 编译 iOS 静态库（真机 arm64 + 模拟器双架构）
+        run: |
+          set -euo pipefail
+          # 真机
+          cargo build -p yagami-ios-native --release --target aarch64-apple-ios
+          # 模拟器（Apple Silicon 与 Intel 各一份，合成 fat 归档）
+          cargo build -p yagami-ios-native --release --target aarch64-apple-ios-sim
+          cargo build -p yagami-ios-native --release --target x86_64-apple-ios
+          mkdir -p apps/ios/native/target/universal/release
+          lipo -create \
+            apps/ios/native/target/aarch64-apple-ios/release/libyagami_ios_native.a \
+            -output apps/ios/native/target/universal/release/libyagami_ios_native.a
+          lipo -create \
+            apps/ios/native/target/aarch64-apple-ios-sim/release/libyagami_ios_native.a \
+            apps/ios/native/target/x86_64-apple-ios/release/libyagami_ios_native.a \
+            -output apps/ios/native/target/universal/release/libyagami_ios_native_sim.a
+          lipo -info apps/ios/native/target/universal/release/*.a
+
+      - name: 生成 Xcode 工程
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -list -project Yagami.xcodeproj
+
+      - name: 构建（未签名）
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project Yagami.xcodeproj \
+            -scheme Yagami \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: 打包未签名 ipa
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/Yagami.app"
+          test -d "$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry Yagami-unsigned.ipa Payload
+          ls -lh Yagami-unsigned.ipa
+
+      - name: 签名（仅在配置了开发者证书时执行）
+        # 需要以下 Secrets 才会跑；没配就跳过，产出未签名包。
+        #   IOS_CERTIFICATE_P12      开发者证书 .p12 的 base64
+        #   IOS_CERTIFICATE_PASSWORD 证书密码
+        #   IOS_PROVISIONING_PROFILE 描述文件的 base64
+        #   IOS_TEAM_ID              开发者团队 ID
+        if: ${{ env.IOS_CERTIFICATE_P12 != '' }}
+        env:
+          IOS_CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          echo "$IOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          echo "$IOS_PROVISIONING_PROFILE" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp "$RUNNER_TEMP/profile.mobileprovision" \
+            ~/Library/MobileDevice/Provisioning\ Profiles/
+          xcodebuild \
+            -project Yagami.xcodeproj -scheme Yagami -configuration Release \
+            -sdk iphoneos -derivedDataPath build \
+            DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$(basename "$RUNNER_TEMP/profile.mobileprovision" .mobileprovision)" \
+            build
+          APP="build/Build/Products/Release-iphoneos/Yagami.app"
+          rm -rf Payload Yagami-signed.ipa
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry Yagami-signed.ipa Payload
+          ls -lh Yagami-signed.ipa
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Yagami-ipa
+          path: |
+            Yagami-unsigned.ipa
+            Yagami-signed.ipa
+          if-no-files-found: warn

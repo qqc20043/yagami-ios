@@ -1,0 +1,108 @@
+# XcodeGen 工程描述。
+#
+# 为什么不用手写的 .xcodeproj：那是上千行带 UUID 的 XML，人改容易改坏、
+# 合并必冲突，而且无法在没有 Xcode 的机器上验证。XcodeGen 把工程定义收敛成
+# 这份可读的 YAML，CI 里 `xcodegen generate` 现场产出 .xcodeproj。
+#
+# 本地（Mac）用法：
+#   brew install xcodegen
+#   xcodegen generate
+#   open Yagami.xcodeproj
+
+name: Yagami
+options:
+  bundleIdPrefix: io.github.utyoinog
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    # 键盘扩展与主 App 共用的桥接头：Swift 靠它看到 yagami_engine_* 函数。
+    SWIFT_OBJC_BRIDGING_HEADER: apps/ios/keyboard/Yagami-Bridging-Header.h
+    # Rust 静态库与头文件的搜索路径。CI 会先把产物放到这里。
+    HEADER_SEARCH_PATHS: $(SRCROOT)/apps/ios/native/include
+    LIBRARY_SEARCH_PATHS:
+      - $(SRCROOT)/apps/ios/native/target/universal/release
+    OTHER_LDFLAGS:
+      - -lyagami_ios_native
+    # 静态库是 Rust 编的，不需要位码。
+    ENABLE_BITCODE: NO
+
+targets:
+  Yagami:
+    type: application
+    platform: iOS
+    sources:
+      - path: apps/ios/app
+      - path: apps/ios/keyboard
+        includes:
+          - "SharedData.swift"
+    info:
+      path: apps/ios/app/Info.plist
+      properties:
+        CFBundleDisplayName: Yagami
+        UILaunchScreen: {}
+        # 刻意不写 UIApplicationSceneManifest：本 App 用 AppDelegate 的
+        # window（见 apps/ios/app/AppDelegate.swift）走旧生命周期。
+        # 有 manifest 而没有场景委托时，iOS 找不到场景的 UI，启动即黑屏。
+    entitlements:
+      path: apps/ios/app/Yagami.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.io.github.utyoinog.yagamiime
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime
+        # 词库随主 App 打包；键盘扩展通过共享容器读，不重复打包。
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+    dependencies:
+      - target: YagamiKeyboard
+        embed: true
+    postBuildScripts:
+      - name: 打包词库
+        # 词库源文件来自上游仓库的 assets/，由 CI 的 fetch-core 步骤放好。
+        script: |
+          set -e
+          RESOURCES="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app"
+          mkdir -p "$RESOURCES"
+          cp "${SRCROOT}/assets/lexicon/dict.tsv" "$RESOURCES/dict.tsv"
+          cp "${SRCROOT}/assets/glossary/glossary-en.tsv" "$RESOURCES/glossary-en.tsv"
+        basedOnDependencyAnalysis: false
+
+  YagamiKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: apps/ios/keyboard
+        excludes:
+          - "Yagami-Bridging-Header.h"
+    info:
+      path: apps/ios/keyboard/Info.plist
+      properties:
+        CFBundleDisplayName: Yagami
+        # 键盘扩展的 NSExtension 声明：没有它系统不会把本 target 当键盘。
+        NSExtension:
+          NSExtensionAttributes:
+            # 主键盘：可作为用户默认键盘。
+            IsASCIICapable: false
+            PrefersRightToLeft: false
+            # 需要完全访问才能读共享容器里的词库。
+            RequestsOpenAccess: true
+            PrimaryLanguage: zh-Hans
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+    entitlements:
+      path: apps/ios/keyboard/YagamiKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.io.github.utyoinog.yagamiime
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime.keyboard
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"

@@ -1,0 +1,23 @@
+[workspace]
+resolver = "3"
+members = ["apps/ios/native"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/qqc20043/yagami-ios"
+
+[workspace.lints.clippy]
+all = "warn"
+
+# Core（拼音引擎、词库、释义表）来自上游 Yagami/Qingjian 仓库。
+# 用 git 依赖而不是路径依赖：本工程要能在 GitHub Actions 上独立构建，
+# 不需要在旁边另签一份仓库。升级 Core 就改这里的 rev。
+[workspace.dependencies]
+qingjian-core = { git = "https://github.com/Utyoin-OG/yagami-Qingjian-android", rev = "a4e72eb" }
+qingjian-dictionary = { git = "https://github.com/Utyoin-OG/yagami-Qingjian-android", rev = "a4e72eb" }
+qingjian-translate = { git = "https://github.com/Utyoin-OG/yagami-Qingjian-android", rev = "a4e72eb" }
+
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"

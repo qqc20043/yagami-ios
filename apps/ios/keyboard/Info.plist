@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+键盘扩展的 Info.plist。
+
+NSExtension 是本文件唯一要紧的部分：没有正确的 NSExtensionPointIdentifier，
+系统不会把本 target 当作键盘，装到手机上也不会出现在键盘列表里。
+RequestsOpenAccess 必须为 true——键盘扩展默认没有网络与共享容器权限，
+而词库放在 App Group 容器里，不给完全访问就读不到。
+-->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh_CN</string>
+	<key>CFBundleDisplayName</key>
+	<string>Yagami</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>IsASCIICapable</key>
+			<false/>
+			<key>PrefersRightToLeft</key>
+			<false/>
+			<key>PrimaryLanguage</key>
+			<string>zh-Hans</string>
+			<key>RequestsOpenAccess</key>
+			<true/>
+		</dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.keyboard-service</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).KeyboardViewController</string>
+	</dict>
+</dict>
+</plist>

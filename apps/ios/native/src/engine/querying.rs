@@ -15,7 +15,9 @@ impl IosEngine {
     }
 
     /// 上屏第 `index` 个候选，返回要插入的文本；越界返回 `None`。
-    pub(crate) fn commit(&self, index: usize) -> Option<String> {
+    ///
+    /// 需要 `&mut self`：Core 的 `commit` 会更新学习状态（词频）。
+    pub(crate) fn commit(&mut self, index: usize) -> Option<String> {
         let candidate = self.candidates().get(index).cloned()?;
         Some(self.engine.commit(&candidate))
     }

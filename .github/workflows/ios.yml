@@ -42,9 +42,12 @@ jobs:
       - name: 取出上游 Core 与词库数据
         # 词库与 Core 都在上游仓库里。这里浅克隆一份，只为拿 assets/ 下的
         # 数据文件；Rust 依赖由 Cargo 按 Cargo.toml 的 git rev 自行拉取。
+        # 用 git -C 而不是 cd：脚本在一个 shell 里执行，cd 会让后面的
+        # 相对路径全部错位（踩过一次：cp upstream/... 变成了 upstream/upstream/...）。
         run: |
           git clone --depth 1 "$CORE_REPO" upstream
-          cd upstream && git fetch --depth 1 origin "$CORE_REV" && git checkout "$CORE_REV"
+          git -C upstream fetch --depth 1 origin "$CORE_REV"
+          git -C upstream checkout "$CORE_REV"
           mkdir -p assets/lexicon assets/glossary
           cp upstream/assets/lexicon/dict.tsv assets/lexicon/
           cp upstream/assets/glossary/glossary-en.tsv assets/glossary/

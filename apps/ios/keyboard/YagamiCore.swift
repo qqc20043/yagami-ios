@@ -110,7 +110,7 @@ enum YagamiError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .dataUnavailable:
-            return "Failed to load the dictionary"
+            return "词库加载失败"
         }
     }
 }

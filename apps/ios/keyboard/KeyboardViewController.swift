@@ -73,7 +73,7 @@ final class KeyboardViewController: UIInputViewController {
         let container = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: SharedData.groupIdentifier)
         guard let container else {
-            showHint("Cannot access the shared container")
+            showHint("无法访问共享容器")
             return
         }
         let dictionary = container.appendingPathComponent(SharedData.dictionaryFile)
@@ -81,12 +81,12 @@ final class KeyboardViewController: UIInputViewController {
         guard FileManager.default.fileExists(atPath: dictionary.path),
               FileManager.default.fileExists(atPath: glossary.path)
         else {
-            showHint("Open the Yagami app first to finish setup")
+            showHint("请先打开 Yagami 完成初始化")
             return
         }
         engine = try? YagamiEngine(dictionary: dictionary, glossary: glossary)
         if engine == nil {
-            showHint("Failed to load the dictionary")
+            showHint("词库加载失败")
         }
     }
 
@@ -156,10 +156,10 @@ final class KeyboardViewController: UIInputViewController {
         row.distribution = .fillProportionally
         row.spacing = 6
 
-        row.addArrangedSubview(actionKey("CN") { [weak self] in self?.toggleChinese() })
+        row.addArrangedSubview(actionKey("中") { [weak self] in self?.toggleChinese() })
         row.addArrangedSubview(actionKey("⌫") { [weak self] in self?.deleteBackward() })
-        row.addArrangedSubview(actionKey("Space", weight: 3) { [weak self] in self?.space() })
-        row.addArrangedSubview(actionKey("Return") { [weak self] in self?.newline() })
+        row.addArrangedSubview(actionKey("空格", weight: 3) { [weak self] in self?.space() })
+        row.addArrangedSubview(actionKey("换行") { [weak self] in self?.newline() })
         row.addArrangedSubview(actionKey("🌐") { [weak self] in self?.advanceToNextInputMode() })
         return row
     }
@@ -277,7 +277,7 @@ final class KeyboardViewController: UIInputViewController {
         }
 
         guard !candidates.isEmpty else {
-            showHint(preedit.isEmpty ? "Type pinyin" : preedit)
+            showHint(preedit.isEmpty ? "输入拼音" : preedit)
             return
         }
         for (index, candidate) in candidates.enumerated() {

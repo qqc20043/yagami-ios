@@ -1,7 +1,7 @@
 [package]
 name = "yagami-ios-native"
 description = "Yagami iOS 输入法的 C ABI 平台壳"
-version = "0.1.1"
+version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

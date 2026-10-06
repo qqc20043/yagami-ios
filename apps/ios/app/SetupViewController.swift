@@ -21,7 +21,7 @@ final class SetupViewController: UIViewController {
 
     private func buildLayout() {
         let title = UILabel()
-        title.text = "Yagami Input Method"
+        title.text = "Yagami 输入法"
         title.font = .systemFont(ofSize: 28, weight: .semibold)
         title.textAlignment = .center
 
@@ -33,17 +33,17 @@ final class SetupViewController: UIViewController {
         detailLabel.textColor = .secondaryLabel
         detailLabel.numberOfLines = 0
         detailLabel.text = """
-        To enable the keyboard:
-        1. Open Settings > General > Keyboard > Keyboards > Add New Keyboard, then pick Yagami
-        2. Tap Yagami and turn on "Allow Full Access"
-           (the keyboard needs it to read the dictionary from the shared container)
-        3. In any text field, touch and hold the globe key, then switch to Yagami
+        启用步骤：
+        1. 打开「设置 → 通用 → 键盘 → 键盘 → 添加新键盘」，选择 Yagami
+        2. 点进 Yagami，打开「允许完全访问」
+           （键盘扩展需要它才能读取共享容器里的词库）
+        3. 在任意输入框长按地球键，切到 Yagami
 
-        English glosses appear under each candidate. Tap a candidate or press Space to commit.
+        译词会显示在候选下方。点候选或按空格上屏。
         """
 
         let openSettings = UIButton(type: .system)
-        openSettings.setTitle("Open Settings", for: .normal)
+        openSettings.setTitle("打开系统设置", for: .normal)
         openSettings.titleLabel?.font = .systemFont(ofSize: 17)
         openSettings.addAction(UIAction { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
@@ -70,16 +70,16 @@ final class SetupViewController: UIViewController {
         guard let container = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: SharedData.groupIdentifier)
         else {
-            statusLabel.text = "Cannot access the shared container"
+            statusLabel.text = "无法访问共享容器"
             statusLabel.textColor = .systemRed
             return
         }
         do {
             try SharedData.install(into: container)
-            statusLabel.text = "Data is ready"
+            statusLabel.text = "数据已就绪"
             statusLabel.textColor = .systemGreen
         } catch {
-            statusLabel.text = "Data installation failed: \(error.localizedDescription)"
+            statusLabel.text = "数据安装失败：\(error.localizedDescription)"
             statusLabel.textColor = .systemRed
         }
     }

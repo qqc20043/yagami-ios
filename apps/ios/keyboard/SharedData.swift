@@ -70,7 +70,7 @@ enum SharedDataError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingResource(let name):
-            return "Missing data file \(name)"
+            return "缺少数据文件 \(name)"
         }
     }
 }

@@ -13,7 +13,7 @@ RequestsOpenAccess 必须为 true——键盘扩展默认没有网络与共享�
 	<key>CFBundleDevelopmentRegion</key>
 	<string>zh_CN</string>
 	<key>CFBundleDisplayName</key>
-	<string>Yagami</string>
+	<string>qq</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

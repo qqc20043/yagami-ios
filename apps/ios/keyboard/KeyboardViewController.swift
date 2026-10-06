@@ -81,7 +81,7 @@ final class KeyboardViewController: UIInputViewController {
         guard FileManager.default.fileExists(atPath: dictionary.path),
               FileManager.default.fileExists(atPath: glossary.path)
         else {
-            showHint("请先打开 Yagami 完成初始化")
+            showHint("请先打开 qq 完成初始化")
             return
         }
         engine = try? YagamiEngine(dictionary: dictionary, glossary: glossary)

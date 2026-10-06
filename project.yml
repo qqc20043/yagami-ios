@@ -45,7 +45,7 @@ targets:
     info:
       path: apps/ios/app/Info.plist
       properties:
-        CFBundleDisplayName: Yagami
+        CFBundleDisplayName: qq
         UILaunchScreen: {}
         # 刻意不写 UIApplicationSceneManifest：本 App 用 AppDelegate 的
         # window（见 apps/ios/app/AppDelegate.swift）走旧生命周期。
@@ -59,8 +59,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime
         # 词库随主 App 打包；键盘扩展通过共享容器读，不重复打包。
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.1"
+        CURRENT_PROJECT_VERSION: "2"
     dependencies:
       - target: YagamiKeyboard
         embed: true
@@ -85,7 +85,7 @@ targets:
     info:
       path: apps/ios/keyboard/Info.plist
       properties:
-        CFBundleDisplayName: Yagami
+        CFBundleDisplayName: qq
         # 键盘扩展的 NSExtension 声明：没有它系统不会把本 target 当键盘。
         NSExtension:
           NSExtensionAttributes:
@@ -105,5 +105,5 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime.keyboard
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.1"
+        CURRENT_PROJECT_VERSION: "2"

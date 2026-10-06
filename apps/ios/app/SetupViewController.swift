@@ -21,9 +21,15 @@ final class SetupViewController: UIViewController {
 
     private func buildLayout() {
         let title = UILabel()
-        title.text = "Yagami 输入法"
+        title.text = "qq 输入法"
         title.font = .systemFont(ofSize: 28, weight: .semibold)
         title.textAlignment = .center
+
+        let attribution = UILabel()
+        attribution.text = "by qqc20043"
+        attribution.font = .systemFont(ofSize: 13)
+        attribution.textColor = .secondaryLabel
+        attribution.textAlignment = .center
 
         statusLabel.font = .systemFont(ofSize: 17)
         statusLabel.textAlignment = .center
@@ -34,10 +40,10 @@ final class SetupViewController: UIViewController {
         detailLabel.numberOfLines = 0
         detailLabel.text = """
         启用步骤：
-        1. 打开「设置 → 通用 → 键盘 → 键盘 → 添加新键盘」，选择 Yagami
-        2. 点进 Yagami，打开「允许完全访问」
+        1. 打开「设置 → 通用 → 键盘 → 键盘 → 添加新键盘」，选择 qq
+        2. 点进 qq，打开「允许完全访问」
            （键盘扩展需要它才能读取共享容器里的词库）
-        3. 在任意输入框长按地球键，切到 Yagami
+        3. 在任意输入框长按地球键，切到 qq
 
         译词会显示在候选下方。点候选或按空格上屏。
         """
@@ -51,7 +57,7 @@ final class SetupViewController: UIViewController {
         }, for: .touchUpInside)
 
         let stack = UIStackView(arrangedSubviews: [
-            title, statusLabel, detailLabel, openSettings,
+            title, attribution, statusLabel, detailLabel, openSettings,
         ])
         stack.axis = .vertical
         stack.spacing = 20

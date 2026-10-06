@@ -30,3 +30,6 @@ signing/
 .idea/
 .vscode/
 *.swp
+
+# 内部交接文档不入公开仓库
+HANDOFF.md

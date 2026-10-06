@@ -59,8 +59,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime
         # 词库随主 App 打包；键盘扩展通过共享容器读，不重复打包。
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.1"
+        CURRENT_PROJECT_VERSION: "2"
     dependencies:
       - target: YagamiKeyboard
         embed: true
@@ -105,5 +105,5 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.utyoinog.yagamiime.keyboard
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.1"
+        CURRENT_PROJECT_VERSION: "2"

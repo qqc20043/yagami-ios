@@ -11,7 +11,7 @@ RequestsOpenAccess 必须为 true——键盘扩展默认没有网络与共享�
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>zh_CN</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Yagami</string>
 	<key>CFBundleExecutable</key>
